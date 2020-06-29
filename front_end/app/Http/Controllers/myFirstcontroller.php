@@ -8,8 +8,8 @@ class myFirstcontroller extends Controller
 {
 public function somefunction()
 {
-    $variableFromController = 'Sending data from controller to our web.php and displaying it with normal php';
-    return view('subdirectory.hello',compact('variableFromController'));
+    $variable = 'Sending data from controller to our web.php and displaying it with normal php';
+    return view('subdirectory.hello',compact('variable'));
 }
 public function forAppblade()
 {
