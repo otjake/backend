@@ -3,28 +3,36 @@ from rest_framework import generics
 from .models import Customers
 from django.http import Http404
 from .serializers import UserSerializer, CustomerSerializer
-from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+#from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth.models import User
-from rest_framework.reverse import reverse
 from rest_framework import renderers
-#from .permissions import IsOwnerOrReadOnly
-#from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-#from rest_framework.authtoken.models import Token
+from rest_framework import permissions
+from .permissions import IsOwnerOrReadOnly
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view # new
+from rest_framework.response import Response # new
+from rest_framework.reverse import reverse # new
+from rest_framework.validators import UniqueValidator
+from rest_framework.permissions import IsAdminUser
 
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-class UserDetail(generics.RetrieveAPIView):
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
 
 class CustomerList(generics.ListCreateAPIView):
     """
@@ -32,11 +40,12 @@ class CustomerList(generics.ListCreateAPIView):
     """
     queryset = Customers.objects.all()
     serializer_class = CustomerSerializer
-   # authentication_classes = [TokenAuthentication, SessionAuthentication]
-   # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        
 
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -44,8 +53,8 @@ class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Customers.objects.all()
     serializer_class = CustomerSerializer
-   # authentication_classes = [TokenAuthentication, SessionAuthentication]
-   # permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
 class CustomerHighlight(generics.GenericAPIView):
@@ -57,7 +66,8 @@ class CustomerHighlight(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         customers = self.get_object()
-        return Response(customers.highlighted)
+        return Response(customers.customer_name)
+
 
 @api_view(['GET'])
 def api_root(request, format=None):

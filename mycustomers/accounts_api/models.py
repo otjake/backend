@@ -10,7 +10,6 @@ class Customers(models.Model):
     created_at          =   models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at          =   models.DateTimeField(auto_now=True)
     owner = models.ForeignKey('auth.User', related_name='customer', on_delete=models.CASCADE)
-    highlighted = models.TextField()
 
 
     class Meta:
