@@ -5,6 +5,7 @@ from django.urls import path, re_path, include
 from django.conf.urls import url
 from .import views
 from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework.authtoken.views import obtain_auth_token
 
 
 urlpatterns = [
@@ -13,6 +14,7 @@ urlpatterns = [
     path('customer/', views.CustomerList.as_view(), name='customer-list'),
     path('customer/<int:pk>/',  views.CustomerDetail.as_view(), name='customer-detail'),
     path('customer/<int:pk>/highlight/', views.CustomerHighlight.as_view(), name='customer-highlight'),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('', views.api_root),
 ]
 

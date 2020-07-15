@@ -24,27 +24,43 @@ from rest_framework.permissions import IsAdminUser
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny, ]
 
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        return User.objects.filter(username=self.request.user)
+        
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     authentication_classes = [TokenAuthentication, SessionAuthentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     
 
 class CustomerList(generics.ListCreateAPIView):
     """
     List all entered companies, or create a new customer.
     """
-    queryset = Customers.objects.all()
+    #queryset = Customers.objects.all()
     serializer_class = CustomerSerializer
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        return Customers.objects.filter(owner=self.request.user)
+
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        
         
 
 class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -66,6 +82,7 @@ class CustomerHighlight(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         customers = self.get_object()
+    
         return Response(customers.customer_name)
 
 
